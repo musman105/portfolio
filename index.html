@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Muhammad Usman</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <header>
+        <h1>Muhammad Usman</h1>
+        <nav id="navbar">
+            <button class="tab-link active" data-target="about">About</button>
+            <button class="tab-link" data-target="blog">Blog</button>
+            <button class="tab-link" data-target="projects">Projects</button>
+            <button class="tab-link" data-target="cv">CV</button>
+            <button class="tab-link" data-target="contact">Contact</button>
+        </nav>
+    </header>
+
+    <main>
+        <section id="about">
+            <h2>About Me</h2>
+            <img src="images/profile.jpg" alt="Muhammad Usman" class="profile-img"/>
+            <p>
+                Results-driven technology professional with expertise in cloud computing, infrastructure engineering, and data-driven decision-making. An all-rounder with a diversified skill set including Cloud Migrations, DR planning & implementation, technical support, Data Centre Operations and System/Networks/Application/Database Administration. 
+            </p>
+            <p>
+                Having a proven record of timely deliverance and making assigned IT projects a success especially in financial, government, telecommunication and entertainment industries. Passionate about configuring IT Software / Hardware solutions, ML/AI, Networks, Data, Cloud Computing, Security, HA/DR, administering systems, providing support and becoming a productive team member to add value to the company’s business objectives.
+            </p>
+        </section>
+
+        <section id="blog" class="hidden">
+            <h2>Blog</h2>
+            <p>Coming soon...</p>
+        </section>
+
+        <section id="projects" class="hidden">
+            <h2>Projects</h2>
+            <p>1.	People’s Choice Bank Transformation Project – Datacenter Engineer
+                1.1.	Replacing a Faulty Hard Drive on HPE Server (ESXi Host)
+                
+                While managing a production ESXi environment on an HPE ProLiant DL380 server, I received a RAID degradation alert via HPE iLO, indicating a failed hard disk in one of the RAID-5 arrays. This server hosted several business-critical virtual machines, so maintaining uptime and data integrity was essential.
+                
+                My responsibility was to replace the failed hard drive with minimal impact on services, ensure the RAID array rebuilt successfully, and return the ESXi host to full operational status.
+                
+                I first logged into the vSphere Client and placed the ESXi host into maintenance mode after migrating active VMs to other hosts using vMotion. I confirmed the failed drive through HPE iLO’s storage section, which showed a solid amber light on the physical bay and flagged the degraded array.
+                Next, I accessed the HPE Smart Storage Administrator (SSA) via Intelligent Provisioning to review the RAID configuration and verify the failed disk's slot. I documented the array settings and proceeded to hot-swap the failed drive with a compatible HPE spare.
+                After insertion, the Smart Array controller automatically detected the new disk and initiated a RAID rebuild. I monitored the rebuild progress through iLO and SSA to ensure there were no anomalies. Once the rebuild completed successfully, I verified the storage status within ESXi and exited maintenance mode.
+                
+                The entire operation was completed without any service disruption. The RAID array was fully rebuilt, and the ESXi host returned to normal operation. This proactive resolution avoided potential data loss and reinforced system reliability, and I later implemented automated email alerts via iLO for faster future responses.
+                
+                1.2.	Resolving a Missing CIFS Share on HPE Data Protector
+                
+                During my shift, an automated backup job on HPE Data Protector failed unexpectedly. On investigation, I discovered that a mapped CIFS share used as a backup target was missing from the filesystem, which impacted several scheduled file system backup jobs across multiple Windows clients.
+                
+                My task was to identify the root cause of the missing CIFS share, restore connectivity, and ensure backups resumed successfully — all within our recovery time objective (RTO).
+                
+                I began by reviewing the Data Protector job logs, which indicated a "No device found" or "Mount point not available" error. I verified the backup server and noticed that the CIFS share mount was not visible under the expected mount path.
+                Using mount and df -h on the Linux-based HPE DP server, I confirmed the CIFS share was not mounted. I attempted to manually remount it using:
+                mount -t cifs //fileserver/backup /mnt/backup -o username=backupuser,password=*****
+                The mount failed, so I checked network connectivity to the file server and confirmed that DNS resolution and SMB port access were working. Next, I checked the file server itself and found that the share was temporarily disabled due to a permissions misconfiguration during a recent file server patch.
+                I coordinated with the Windows team to re-enable and re-permission the share, then successfully re-mounted the CIFS share on the HPE DP server. Once mounted, I restarted the failed backup sessions manually and monitored them to successful completion.
+                
+                The CIFS share was restored within the hour, and all backup jobs resumed without requiring a full rerun or rollback. I documented the incident, added a pre-job mount check script to future backup workflows, and worked with the storage team to implement CIFS mount alerts. This incident reinforced my proactive approach to troubleshooting and helped improve system resilience.
+                
+                ________________________________________
+                1.3.	🔧 Monthly Patching Workflow
+                For Windows Server 2012/2016 (On-Prem & Cloud) via SCCM/WSUS + ServiceNow
+                ________________________________________
+                ✅ 1.Review Patch Tuesday Releases (Week 1)
+                •	Go to the Microsoft Security Update Guide to review the latest cumulative/security updates.
+                •	Identify patches relevant to:
+                o	Windows Server 2012/2016
+                o	Microsoft products (e.g., SQL, .NET, IIS)
+                ________________________________________
+                ✅ 2. Raise a Change Request in ServiceNow
+                📋 In ServiceNow:
+                •	Change Type: Normal / Standard (depends on org policy)
+                •	Short Description: Monthly Patch Cycle – Windows Servers – [Month Year]
+                •	Description: Applying Microsoft monthly patches via SCCM/WSUS to Windows 2012/2016 servers. Includes pre-checks, deployment, testing, and post-verification.
+                •	Planned Start/End Date: Based on maintenance window
+                •	CI (Configuration Item): Select affected servers or groups
+                •	Impact/Urgency: 3/3 or per environment SLA
+                •	Risk & Mitigation: e.g., VM snapshot, backup, rollback plan
+                •	Approvals: Assign to stakeholders (Infra, App Owners, CAB)
+                ________________________________________
+                ✅ 3. Approve and Schedule the Change
+                •	Wait for CAB approval.
+                •	Schedule patch deployment during low-usage hours or agreed maintenance windows (staggered for critical servers).
+                ________________________________________
+                ✅ 4. Pre-Patching Checks
+                •	Confirm latest SCCM client is installed on all servers.
+                •	Verify WSUS synchronization is successful and updates are available.
+                •	Ensure backups or snapshots are completed.
+                •	Check for any pending reboots on servers (gpresult, pending.xml, or SCCM console).
+                ________________________________________
+                ✅ 5. Create Software Update Group in SCCM
+                1.	Go to SCCM Console > Software Library > Software Updates > All Software Updates
+                2.	Filter by Release Date (this month).
+                3.	Select relevant patches (e.g., Windows Server 2012/2016 only).
+                4.	Create a Software Update Group (SUG) called:
+                Windows_Monthly_Patches_June_2025
+                5.	Download and deploy updates to Deployment Packages with cloud DP if needed.
+                ________________________________________
+                ✅ 6. Deploy Updates via SCCM
+                1.	Go to the newly created SUG.
+                2.	Deploy to a collection (e.g. Patch_Group_Prod, Patch_Group_Test).
+                3.	Configure:
+                o	Available time: After-hours
+                o	Deadline time: Maintenance window
+                o	User experience: Suppress reboot for servers
+                o	Alerts/Monitoring: Enable state messages and compliance reports
+                ________________________________________
+                ✅ 7. Cloud-Based Servers
+                •	For Azure/AWS:
+                o	Ensure SCCM client can reach management point/DP (VPN, Azure Gateway, CMG).
+                o	If using Azure Update Management, follow OMS patching procedure instead (optional).
+                •	Confirm SCCM boundaries and site assignment for hybrid cloud setup.
+                ________________________________________
+                ✅ 8. Monitor Deployment Status
+                •	In SCCM Monitoring:
+                o	Check Deployment Status > Compliance %
+                o	Track via Report: Compliance 1 – Overall Compliance
+                •	For failed nodes:
+                o	Investigate logs: UpdatesDeployment.log, WUAHandler.log
+                o	Use Client Center, CMTrace or run wuauclt /reportnow
+                ________________________________________
+                ✅ 9. Post-Patching Verification
+                •	Confirm all patches applied and systems rebooted as needed.
+                •	Check:
+                o	System uptime
+                o	Event Viewer logs for post-patch errors
+                o	Application functionality
+                o	Run compliance script (Get-HotFix or SCCM compliance report)
+                ________________________________________
+                ✅ 10. Close Change in ServiceNow
+                •	Update Change Request:
+                o	Change State: Review / Closed
+                o	Implementation Result: Successful / Partial with notes
+                o	Evidence: Attach SCCM compliance report or screenshot
+                •	Notify stakeholders and application owners.
+                ________________________________________
+                📌 Following Best Practices Were Adopted
+                Patching Order	Patch non-critical/test servers first, then production
+                Rollback Plan	Use VM snapshots or backup restores for critical systems
+                Coordination	Communicate patching to app owners and ensure no conflicts
+                Automation	Use Maintenance Windows and ADR (Automatic Deployment Rules) for recurring tasks
+                
+                1.4.	🏦 People’s Choice Bank – Cloud Migration & Data Centre Operations
+                
+                People’s Choice Bank had engaged a Managed Service Provider (MSP) to deliver a cloud migration and transformation project. At the time, the project was in transition, requiring both hands-on technical support and cross-functional coordination to move it into a stable, operational state.
+                
+                As a Data Centre Engineer, I was tasked with supporting the infrastructure aspect of the migration. In addition, I took on extended responsibilities to help transition the cloud migration initiative into the Business-as-Usual (BAU) phase, and I was also responsible for planning the bank’s annual data centre shutdown in coordination with vendors and stakeholders.
+                
+                I collaborated closely with the Service Delivery Manager and internal/external teams, actively learning and performing activities across various technical towers including cloud, network, storage, and backup. I facilitated knowledge transfer sessions, bridged communication gaps between teams, and ensured operational readiness as the project moved toward BAU. For the data centre shutdown, I led the planning and execution, created runbooks, coordinated vendor schedules, and ensured minimal disruption during the activity.
+                
+                The cloud migration project was successfully stabilised and transitioned to BAU, improving service delivery and operational ownership. The data centre shutdown was completed without incident, meeting timelines and compliance standards, and reinforcing confidence in our infrastructure readiness and vendor coordination.
+                
+                2.	 (Allied Banking – Data Centre Operations / DR Planning and Implementation)
+                
+                2.1.	Annual Disaster Recovery Exercise – Full DC Switchover
+                As part of an annual DR exercise for a leading bank, we were tasked with simulating a complete failure of the Primary Data Centre (DC1) and successfully switching all banking applications — both critical and non-critical — to the Alternate DR Data Centre (DC2). Key applications included Core Banking, ATM Switch, and Internet Banking, all with a mandated 4-hour RTO.
+                A technical challenge was that the Core Banking application stack (web/app/database) was hosted in DC1 with different IP addressing at the DR site, requiring a non-standard switchover strategy. In contrast, all other applications were hosted on VMware, using the same IP scheme across both DCs, facilitated by OTV (Overlay Transport Virtualization) on Nexus 7K to extend Layer 2.
+                ________________________________________
+                Ensure seamless recovery of the entire banking platform by:
+                •	Executing an IP-differentiated switchover of the Core Banking system
+                •	Achieving seamless failover of VMware-hosted applications via OTV
+                •	Maintaining RTO ≤ 4 hours for critical systems and ensuring full system functionality at DC2.
+                ________________________________________
+                🔴 Core Banking Switchover (Different IP Address Strategy)
+                To switch Core Banking to DR with a different network/IP addressing schema, we followed a staged approach:
+                1.	Stop incoming traffic:
+                o	Blocked inbound traffic at perimeter firewalls and upstream load balancers.
+                o	Informed integration partners (payment gateways, host interfaces) to hold connections.
+                2.	Shutdown at Primary DC (DC1):
+                o	Gracefully shut down Web Servers, followed by Application Servers.
+                o	Triggered a controlled database switchover to promote the DR replica (Oracle Data Guard) as Primary.
+                3.	Energize at DR (DC2):
+                o	Brought up Application Servers and connected them to the newly promoted Primary DB.
+                o	Brought up Web Servers and verified app functionality via internal testing.
+                4.	Reopen Network Traffic:
+                o	Reconfigured external DNS entries where required.
+                o	Enabled firewall and load balancer policies to allow traffic into the DR web front end.
+                This strategy ensured a clean and verifiable cutover, despite differing IP architectures, and avoided overlapping route conflicts.
+                ________________________________________
+                🟡 VMware-Based Applications Switchover (Same IP via OTV)
+                •	All non-core applications, including Internet Banking, ATM Switch, Treasury, HRMS, and Reporting, resided on a VMware virtualized infrastructure.
+                •	We utilized OTV on Cisco Nexus 7K to extend Layer 2 between DC1 and DC2, allowing us to:
+                o	Retain same IP and VLANs at both sites.
+                o	Seamlessly vMotion and start up virtual machines at DC2 without IP reconfiguration.
+                •	VM replication was handled via vSphere Replication and SRM (Site Recovery Manager).
+                •	Services were brought online in defined tiers:
+                o	Tier 1 (Critical): ATM Switch, Internet Banking – started first and validated for user transactions.
+                o	Tier 2 (Non-Critical): Treasury, HRMS, Compliance apps – brought up post Tier 1 validation.
+                ________________________________________
+                •	All critical applications, including Core Banking, were restored within the 4-hour RTO window.
+                •	The Core Banking switchover using a shut–switch–start approach with IP realignment was executed successfully without customer impact.
+                •	All VMware-based apps came up smoothly at the DR site using same IPs, thanks to OTV Layer 2 extension.
+                •	Full user journey and transaction validations were completed by application owners and business testers.
+                •	The test outcome was documented and signed off, with lessons learned used to refine DR runbooks and fallback procedures.
+                2.2.	🚀 Oracle RAC & Database Migration – AIX to Exadata with Zero Downtime
+                GoldenGate Replication | ASM Conversion | Mission-Critical Banking Systems
+                ________________________________________
+                🧱 Environment Overview
+                Component	Source (Pre-Migration)	Target (Post-Migration)
+                Platform	IBM AIX	Oracle Exadata X8
+                DB Version	Oracle 11gR2	Oracle 11gR2
+                Storage	File System (RAW/OCFS2)	Oracle ASM
+                Primary	2-node Oracle RAC	2-node Oracle RAC (Exadata)
+                Standby	2-node Oracle RAC	2-node Oracle RAC (Exadata)
+                Reporting	Single Instance (Read-Only)	Single Instance (ASM)
+                Replication Tool	N/A	Oracle GoldenGate
+                ________________________________________
+                ✅ Project Objective
+                To migrate the full Oracle 11gR2 database stack—including 2-node RAC primary, standby RAC, and reporting instance—from IBM AIX to dual-site Oracle Exadata infrastructure, moving from file system to ASM, while maintaining zero downtime using Oracle GoldenGate.
+                ________________________________________
+                📋 Step-by-Step Project Execution
+                ________________________________________
+                1. Discovery & Planning
+                •	Audited existing IBM AIX environment: 2-node RAC primary, 2-node standby RAC, and single-instance reporting.
+                •	Defined target dual-site topology: Exadata at both Primary and DR sites, each running Oracle RAC with ASM.
+                •	Designed a real-time replication strategy using Oracle GoldenGate to achieve a zero-downtime cutover.
+                •	Coordinated with business and infrastructure teams to align the change plan with operational and regulatory requirements.
+                ________________________________________
+                2. Target Exadata Provisioning
+                •	Built 2-node Oracle RAC clusters on:
+                o	Primary Exadata (DC1) – for Production
+                o	DR Exadata (DC2) – for Standby + Reporting
+                •	Configured ASM disk groups and installed Oracle 11gR2 Grid Infrastructure and DB Homes.
+                •	Created required users, profiles, tablespaces, and Data Guard configurations to mirror the source.
+                ________________________________________
+                3. Initial Data Load
+                •	Used RMAN cross-platform duplicate to migrate data from AIX to Exadata ASM (for both Primary and DR).
+                •	Synced reporting database on DR Exadata via backup-based clone.
+                •	Validated object count, constraints, and dependent schemas.
+                ________________________________________
+                4. GoldenGate Setup
+                •	Installed GoldenGate on:
+                o	Source IBM AIX (capture)
+                o	Exadata Primary (DC1) and DR (DC2) (replicat)
+                •	Configured Extract, Pump, and Replicat for real-time replication of DML and DDL across environments.
+                •	Tuned replication latency and checkpoints to maintain a low-lag, stable data stream.
+                ________________________________________
+                5. Pre-Cutover Validation
+                •	Validated data consistency between source and target using checksum and row count comparisons.
+                •	Conducted replication lag monitoring and simulated failovers at the DR site.
+                •	Application teams tested against a read-only replica on Exadata DR for verification.
+                ________________________________________
+                6. Cutover (Weekend Downtime – Zero Business Impact)
+                •	Quiesced incoming DML activity through controlled application pause.
+                •	Waited for GoldenGate lag to reach zero.
+                •	Final sync executed and source Extracts stopped.
+                •	Cutover switch performed:
+                o	Redirected production to Primary Exadata (DC1)
+                o	Re-established Data Guard between Primary and DR Exadata RAC
+                o	Reconfigured reporting database on Exadata DR for live read-only access
+                ________________________________________
+                ✅ 7. Post-Migration Activities
+                •	Confirmed full cluster, listener, and ASM health across both sites.
+                •	Validated Data Guard broker sync between Exadata Primary and DR.
+                •	Performed failover tests from Exadata Primary to DR to validate continuity.
+                •	Delivered full documentation, updated DR runbooks, and knowledge transfer to support teams.
+                ________________________________________
+                🏁 Project Outcome
+                •	Seamlessly migrated entire RAC-based Core Banking infrastructure from IBM AIX to dual Oracle Exadata machines across Primary and DR sites.
+                •	Achieved zero downtime and no data loss using Oracle GoldenGate for real-time replication.
+                •	Improved performance and resilience through ASM storage, Exadata Smart Scans, and MAA-compliant DR setup.
+                •	Established a future-proof, high-availability platform for mission-critical banking applications.
+                
+                
+                2.3.	📌 Project Objective
+                To deploy Oracle Enterprise Manager Cloud Control 12c from scratch and enable comprehensive monitoring of a critical banking infrastructure hosted on dual-site Oracle Exadata environments, including:
+                •	Oracle RAC clusters (Primary & DR)
+                •	ASM-based storage
+                •	Data Guard configurations
+                •	Read-only Reporting Instance
+                The goal was to deliver centralized visibility, performance tracking, SLA monitoring, and alerting for the core Oracle infrastructure supporting banking applications.
+                ________________________________________
+                🧱 Target Monitoring Scope
+                Component	Deployment Site
+                Oracle RAC (2-node)	Exadata DC1 + DC2
+                ASM Storage	Both DCs
+                Data Guard	Exadata DC1 ↔ DC2
+                Reporting DB	Exadata DR Site
+                ________________________________________
+                📋 Step-by-Step Deployment Process
+                ________________________________________
+                1. Preparation & Prerequisites
+                •	Provisioned a dedicated OEM 12c server (Linux) with required CPU, memory, and storage.
+                •	Installed Oracle 11gR2 database to host the Oracle Management Repository (OMR).
+                •	Validated host resolution, firewall access, and OS prerequisites across all nodes in Primary and DR Exadata sites.
+                ________________________________________
+                2. Repository Database Setup
+                •	Created the OMR database using DBCA, with optimized parameters for OEM.
+                •	Enabled archive logging and backups for the repository.
+                •	Allocated custom tablespaces for repository schema.
+                ________________________________________
+                3. Install OEM Cloud Control 12c
+                •	Launched the OEM 12c Installer, configuring:
+                o	WebLogic domain
+                o	Oracle Management Service (OMS)
+                o	Repository registration
+                •	Completed secure configuration, port binding, and installation validations using emctl tools.
+                ________________________________________
+                4. Deploy Management Agents
+                •	Installed OEM agents on:
+                o	All Exadata RAC nodes (Primary and DR)
+                o	Reporting instance host
+                •	Secured and registered agents using emctl secure agent and configured heartbeat polling.
+                ________________________________________
+                5. Auto-Discovery of Targets
+                •	Performed auto-discovery of Oracle components:
+                o	RAC clusters
+                o	ASM instances
+                o	Listeners, DB homes, and instances
+                •	Added Data Guard associations to display real-time standby sync and status.
+                •	Registered Reporting database as a standalone monitored target.
+                ________________________________________
+                6. Monitoring Template Configuration
+                •	Applied tailored monitoring templates for:
+                o	RAC instance and cluster health
+                o	ASM disk group space usage
+                o	Data Guard apply lag and sync status
+                •	Configured email alerts for severity-based incidents and integrated with escalation workflows.
+                ________________________________________
+                7. Performance Reporting & Dashboards
+                •	Enabled AWR and ADDM reports for all RAC and single-instance databases.
+                •	Built custom dashboards to visualize:
+                o	Cluster-wide DB load
+                o	ASM storage usage trends
+                o	Data Guard sync and role transitions
+                •	Scheduled weekly/monthly reports for senior IT and compliance teams.
+                ________________________________________
+                8. Post-Deployment Validation
+                •	Simulated RAC node failures and Data Guard role transitions to test alerting.
+                •	Verified all target metrics, availability, and performance graphs within OEM.
+                •	Conducted training for support teams to utilize OEM for proactive operations and diagnostics.
+                ________________________________________
+                🏁 Project Outcome
+                •	Successfully deployed Oracle Enterprise Manager Cloud Control 12c with full-stack observability of Oracle RAC, ASM, Data Guard, and Reporting environments.
+                •	Ensured visibility across dual Exadata sites (Primary & DR), reducing reactive effort and improving uptime assurance.
+                •	Significantly improved root cause analysis and SLA compliance through automated insights and threshold-based alerting.
+                •	Enabled long-term infrastructure health planning with trend reporting and historical analytics.
+                
+                
+                3.	Sony Music Entertainment – Legacy Label System Cloud Migration
+                
+                Sony Music was operating a legacy label system on-premises, which was becoming increasingly difficult to scale and maintain. The organization decided to migrate this system to the cloud to improve performance, availability, and long-term sustainability.
+                
+                I was responsible for planning and executing the end-to-end migration, which included stakeholder coordination, vendor engagement, hands-on technical support, and post-migration stability. Additionally, I was tasked with documenting all key processes to support ongoing operations.
+                
+                I led the migration initiative by creating a detailed project plan, engaging with cloud service providers and internal stakeholders, and coordinating timelines and dependencies. I provided hands-on technical support throughout the migration process, including pre-migration assessments, data integrity checks, and real-time issue resolution. Post-migration, I monitored system performance to ensure stability. I also developed comprehensive documentation of the Label System workflows, including step-by-step guides for ad-hoc and routine tasks, aligned with best practices for troubleshooting and support.
+                
+                The migration was successfully completed with minimal disruption, enhancing system reliability and scalability. The documentation I produced improved team efficiency and knowledge transfer, ensuring smoother operations and quicker resolution of issues going forward.
+                
+                4.	Fairfield City Council – IT Infrastructure & Operations
+                
+                The Council's critical Payroll Application relied on a standalone database hosted in the primary data centre, posing a risk to business continuity in the event of a failure.
+                
+                I was tasked with implementing a reliable disaster recovery solution for the Payroll database and improving the operational maturity of the IT team by formalizing their technical workflows and troubleshooting procedures.
+                
+                I designed and implemented a real-time replication solution between the Council’s primary and alternate data centres, ensuring data integrity and failover readiness for the Payroll system. In parallel, I documented key IT workflows, covering routine and ad-hoc tasks, and developed clear troubleshooting guides based on system dependencies and escalation procedures.
+                
+                The replication setup ensured the Payroll system could meet recovery objectives and continue operating during outages. The documentation enhanced team efficiency, reduced support resolution time, and served as a reliable knowledge base for both new and existing IT staff.
+                
+                5.	Techaccess -🏦 Core Banking Oracle Database Upgrade – MAA Architecture 
+                Weekend Cutover | 4-Hour Planned Downtime | MAA-Compliant Design
+                Environment Overview:
+                •	Primary Site (DC1): 2-node Oracle RAC (Active Primary)
+                •	Disaster Recovery Site (DC2): 2-node Oracle RAC (Physical Standby using Data Guard)
+                •	Reporting Site: Single-instance standby for reporting (read-only)
+                •	Upgrade Scope: Grid Infrastructure, Oracle RAC Database
+                •	Upgrade Version: Oracle 10g Release 2 ➜ 11g Release 2
+                •	Planned Downtime: 4 hours (Business-approved)
+                ________________________________________
+                ✅ Project Objective:
+                To upgrade Oracle Grid Infrastructure, RAC, and Database stack from 10gR2 to 11gR2 across a mission-critical Core Banking environment, with a Maximum Availability Architecture (MAA) setup. The goal was to deliver the upgrade safely and reliably within a business-approved 4-hour downtime window over a weekend.
+                ________________________________________
+                📋 Step-by-Step Execution Plan
+                1. Pre-Upgrade Planning & Assessment
+                •	Reviewed Oracle’s upgrade path and compatibility for 10g ➜ 11g.
+                •	Ran Oracle pre-upgrade checks (utlu112i.sql) and validated key application dependencies.
+                •	Scheduled a downtime window (Saturday 10 PM – Sunday 2 AM) with business, infra, and app owners.
+                •	Prepared full rollback strategy and approval for contingency fallback.
+                2. Backup & Environment Readiness
+                •	Completed full cold and hot RMAN backups of all database instances.
+                •	Validated Data Guard sync status and reporting standby availability.
+                •	Captured cluster and listener configurations, database parameters, and OS-level settings.
+                ________________________________________
+                🟢 Upgrade Execution – During Approved Downtime
+                3. Shut Down Core Banking Services
+                •	Stopped all external and internal application traffic to Oracle RAC primary (DC1).
+                •	Performed controlled shutdown of databases, listeners, and cluster services.
+                •	Confirmed quiescence across all RAC nodes and Data Guard paths.
+                4. Grid Infrastructure Upgrade (DC1)
+                •	Removed Oracle 10g CRS and performed clean install of Oracle 11gR2 Grid Infrastructure.
+                •	Verified clusterware startup, ASM disk groups, and interconnect health on both nodes.
+                5. RAC Database Upgrade (DC1)
+                •	Installed Oracle 11gR2 RDBMS home and linked RAC binaries.
+                •	Used DBUA (Database Upgrade Assistant) to upgrade the database in RAC-aware mode.
+                •	Applied post-upgrade patches and executed utlrp.sql to compile invalid objects.
+                6. Upgrade of DR Site (DC2)
+                •	Upgraded Oracle Grid Infrastructure and database on standby RAC at DC2 during the same downtime window.
+                •	Ensured redo apply was re-enabled and no log gap remained post-upgrade.
+                7. Upgrade of Reporting Standby
+                •	Performed a manual upgrade of the single-instance read-only standby database using catupgrd.sql.
+                •	Verified sync with new primary and validated availability for reporting workloads.
+                ________________________________________
+                ✅ 8. Post-Upgrade Validation
+                •	Validated Core Banking application’s database connectivity.
+                •	Verified RAC services, listener status, Data Guard sync, and reporting instance status.
+                •	Performed business verification testing (ATM, Internet Banking, Teller transactions).
+                •	Reviewed cluster health with cluvfy, crsctl, and srvctl.
+                ________________________________________
+                📘 9. Documentation & Knowledge Transfer
+                •	Updated infrastructure topology diagrams and DR runbooks to reflect new version and layout.
+                •	Delivered knowledge transfer to DBA and operations teams on key 11gR2 features, cluster behavior, and troubleshooting.
+                ________________________________________
+                🏁 Project Outcome:
+                •	Successfully completed upgrade from Oracle 10gR2 to 11gR2 within the approved 4-hour downtime window.
+                •	Ensured 100% data integrity, full RAC and Data Guard functionality, and no post-migration production issues.
+                •	Improved system performance, security compliance, and long-term supportability aligned with Oracle MAA best practices.
+                
+                </p>
+        </section>
+
+        <section id="cv" class="hidden">
+            <h2>Curriculum Vitae</h2>
+            <p>A downloadable CV link or embedded resume can go here.</p>
+        </section>
+
+        <section id="contact" class="hidden">
+            <h2>Contact</h2>
+            <p>Email: your.email@example.com</p>
+            <p>LinkedIn: https://linkedin.com/in/yourprofile</p>
+            <p>GitHub: https://github.com/yourusername</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Muhammad Usman. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.querySelectorAll('.tab-link').forEach(button => {
+            button.addEventListener('click', () => {
+                const target = button.getAttribute('data-target');
+                document.querySelectorAll('main section').forEach(sec => sec.classList.add('hidden'));
+                document.querySelectorAll('.tab-link').forEach(btn => btn.classList.remove('active'));
+                document.getElementById(target).classList.remove('hidden');
+                button.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
